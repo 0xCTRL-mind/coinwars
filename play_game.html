@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coinwars - Play Game</title>
+</head>
+<body>
+    <h1>Coinwars</h1>
+    <h2>Day: {{ game.day }}/30 | Location: {{ game.locations[game.day-1] }}</h2>
+    <p>Money: ${{ game.player.money }} | Health: {{ game.player.health }}%</p>
+    <p>Wallet Space Available: {{ game.player.wallet_space_available() }}</p>
+
+    <h3>Market:</h3>
+    <ul>
+    {% for item, price in game.market.items() %}
+        <li>{{ game.coins.get(item, game.nfts.get(item)) }}: ${{ price }} ({{ item }})</li>
+    {% endfor %}
+    </ul>
+
+    <h3>Your Wallet:</h3>
+    <ul>
+    {% for item, amount in game.player.wallet['coins'].items() %}
+        <li>{{ game.coins[item] }}: {{ amount }}</li>
+    {% endfor %}
+    {% for item, amount in game.player.wallet['NFTs'].items() %}
+        <li>{{ game.nfts[item] }}: {{ amount }}</li>
+    {% endfor %}
+    </ul>
+
+    <h3>Actions:</h3>
+    <form action="{{ url_for('play_game') }}" method="post">
+        <label for="buy_item">Buy:</label>
+        <select name="item" id="buy_item">
+            {% for item in game.market %}
+                <option value="{{ item }}">{{ game.coins.get(item, game.nfts.get(item)) }}</option>
+            {% endfor %}
+        </select>
+        <input type="number" name="quantity" min="1" value="1">
+        <input type="hidden" name="action" value="buy">
+        <input type="submit" value="Buy">
+    </form>
+
+    <form action="{{ url_for('play_game') }}" method="post">
+        <label for="sell_item">Sell:</label>
+        <select name="item" id="sell_item">
+            {% for item in game.player.wallet['coins'] %}
+                <option value="{{ item }}">{{ game.coins[item] }}</option>
+            {% endfor %}
+            {% for item in game.player.wallet['NFTs'] %}
+                <option value="{{ item }}">{{ game.nfts[item] }}</option>
+            {% endfor %}
+        </select>
+        <input type="number" name="quantity" min="1" value="1">
+        <input type="hidden" name="action" value="sell">
+        <input type="submit" value="Sell">
+    </form>
+
+    <form action="{{ url_for('play_game') }}" method="post">
+        <input type="hidden" name="action" value="next_turn">
+        <input type="submit" value="Next Turn">
+    </form>
+</body>
+</html>
